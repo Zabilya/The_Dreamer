@@ -8,35 +8,23 @@ namespace portalScripts
         private static readonly Quaternion halfTurn = Quaternion.Euler(0.0f, 180.0f, 0.0f);
         public Teleporter otherTeleporter;
         public GameObject player;
-        public int teleportedNum;
         public bool isTeleported;
 
         // Start is called before the first frame update
         void Start()
         {
             player = GameObject.Find("Player");
-            teleportedNum = 0;
+            isTeleported = false;
         }
 
         private void FixedUpdate()
         {
-            player.GetComponent<PlayerController>().enabled = true;
+            if (isTeleported)
+            {
+                player.GetComponent<PlayerController>().enabled = true;
+                isTeleported = false;
+            }
         }
-
-        // Update is called once per frame
-        // void LateUpdate()
-        // {
-        //     if (isTeleported)
-        //     {
-        //         if (teleportedNum > 3)
-        //         {
-        //             player.GetComponent<PlayerController>().enabled = true;
-        //             teleportedNum = 0;
-        //         }
-        //
-        //         teleportedNum++;
-        //     }
-        // }
 
         private void OnTriggerStay(Collider other)
         {
