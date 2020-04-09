@@ -1,5 +1,4 @@
-﻿using UnityEditor.PackageManager;
-using UnityEngine;
+﻿using UnityEngine;
 using Cursor = UnityEngine.Cursor;
 using Image = UnityEngine.UI.Image;
 
@@ -20,6 +19,7 @@ namespace PlayerScripts
         private void Start ()
         {
             Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
             if (crosshairObject == null)
                 crosshairObject = GameObject.Find("CrosshairObject");
             if (crosshairImage == null)
