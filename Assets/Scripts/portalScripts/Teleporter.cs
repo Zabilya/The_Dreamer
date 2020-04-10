@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace portalScripts
@@ -9,16 +10,29 @@ namespace portalScripts
         public Teleporter otherTeleporter;
         public GameObject player;
         public bool isTeleported;
+        private Camera mainCamera;
+        private CameraClearFlags _clearFlags;
+        private int _cullingMask;
+        // private bool _isTp;
+        // private bool _isFreezed;
 
         // Start is called before the first frame update
         void Start()
         {
             player = GameObject.Find("Player");
             isTeleported = false;
+            mainCamera = Camera.main;
         }
 
         private void FixedUpdate()
         {
+            // if (_isFreezed && _isTp)
+            // {
+            //     UnFreezeCamera();
+            //     _isFreezed = false;
+            //     _isTp = false;
+            // }
+            
             if (isTeleported)
             {
                 player.GetComponent<PlayerController>().enabled = true;
@@ -28,14 +42,34 @@ namespace portalScripts
 
         private void OnTriggerStay(Collider other)
         {
-            float zPos = transform.worldToLocalMatrix.MultiplyPoint3x4(other.transform.position).z;
-
-            if (zPos < 0)
+            float zPos = transform.InverseTransformPoint(other.transform.position).z;
+            // if (zPos < 0.15 && !_isFreezed)
+            // { 
+            //     FreezeCamera();
+            //     _isFreezed = true;
+            // }
+            if (zPos < 0.0f)
             {
                 player.GetComponent<PlayerController>().enabled = false;
                 Teleport(player.GetComponent<Transform>());
                 isTeleported = true;
+                // _isTp = true;
             }
+        }
+
+        private void FreezeCamera()
+        {
+            //yield return null;
+            _clearFlags = mainCamera.clearFlags;
+            mainCamera.clearFlags = CameraClearFlags.Nothing;
+            _cullingMask = mainCamera.cullingMask;
+            mainCamera.cullingMask = 0;
+        }
+
+        private void UnFreezeCamera()
+        {
+            mainCamera.clearFlags = _clearFlags;
+            mainCamera.cullingMask = _cullingMask;
         }
 
         private void Teleport(Transform objTrans)
