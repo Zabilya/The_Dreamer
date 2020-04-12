@@ -46,10 +46,10 @@ namespace portalScripts
             material.mainTexture = tex;
         }
 
-        public bool IsRendererVisible()
+        public bool IsRendererVisible(Camera cam)
         {
             // return renderer.isVisible;
-            return renderer.IsVisibleFrom(Camera.main);
+            return renderer.IsVisibleFrom(cam);
         }
 
         // private void OnTriggerEnter(Collider other)

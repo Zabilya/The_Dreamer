@@ -13,8 +13,8 @@ namespace portalScripts
         private Camera mainCamera;
         private CameraClearFlags _clearFlags;
         private int _cullingMask;
-        // private bool _isTp;
-        // private bool _isFreezed;
+        private bool _isTp;
+        private bool _isFreezed;
 
         // Start is called before the first frame update
         void Start()
@@ -26,7 +26,7 @@ namespace portalScripts
 
         private void FixedUpdate()
         {
-            // if (_isFreezed && _isTp)
+            // if (_isFreezed)
             // {
             //     UnFreezeCamera();
             //     _isFreezed = false;
@@ -43,23 +43,28 @@ namespace portalScripts
         private void OnTriggerStay(Collider other)
         {
             float zPos = transform.InverseTransformPoint(other.transform.position).z;
-            // if (zPos < 0.15 && !_isFreezed)
+            // if (zPos < 0.08f && !_isFreezed)
             // { 
             //     FreezeCamera();
             //     _isFreezed = true;
             // }
-            if (zPos < 0.0f)
+            if (zPos < 0.0f && zPos > -0.4f)
             {
                 player.GetComponent<PlayerController>().enabled = false;
                 Teleport(player.GetComponent<Transform>());
                 isTeleported = true;
-                // _isTp = true;
+                _isTp = true;
             }
         }
 
+        // private void OnTriggerExit(Collider other)
+        // {
+        //     var position = GetComponent<Transform>().position;
+        //     float zPos = transform.InverseTransformPoint(other.transform.position).z;
+        // }
+
         private void FreezeCamera()
         {
-            //yield return null;
             _clearFlags = mainCamera.clearFlags;
             mainCamera.clearFlags = CameraClearFlags.Nothing;
             _cullingMask = mainCamera.cullingMask;
@@ -75,9 +80,9 @@ namespace portalScripts
         private void Teleport(Transform objTrans)
         {
             // Position
-            Vector3 localPos = transform.worldToLocalMatrix.MultiplyPoint3x4(objTrans.position);
-            localPos = new Vector3(-localPos.x, localPos.y, -localPos.z);
-            objTrans.position = otherTeleporter.transform.localToWorldMatrix.MultiplyPoint3x4(localPos);
+            // Vector3 localPos = transform.worldToLocalMatrix.MultiplyPoint3x4(objTrans.position);
+            // localPos = new Vector3(-localPos.x, localPos.y, -localPos.z);
+            // objTrans.position = otherTeleporter.transform.localToWorldMatrix.MultiplyPoint3x4(localPos);
             
             
             // // Rotation
@@ -86,9 +91,9 @@ namespace portalScripts
             // objTrans.rotation = difference * objTrans.rotation;
             
             // Update position of object.
-            // Vector3 relativePos = transform.InverseTransformPoint(objTrans.position);
-            // relativePos = halfTurn * relativePos;
-            // objTrans.position = otherTeleporter.transform.TransformPoint(relativePos);
+            Vector3 relativePos = transform.InverseTransformPoint(objTrans.position);
+            relativePos = halfTurn * relativePos;
+            objTrans.position = otherTeleporter.transform.TransformPoint(relativePos);
 
             // Update rotation of object.
             Quaternion relativeRot = Quaternion.Inverse(transform.rotation) * objTrans.rotation;

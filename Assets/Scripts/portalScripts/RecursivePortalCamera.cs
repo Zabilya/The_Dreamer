@@ -6,20 +6,20 @@ namespace portalScripts
     {
         [SerializeField] 
         private NewPortal[] portals = new NewPortal[2];
-
-        [SerializeField] 
-        private Camera portalCamera;
+        
+        public Camera portalCamera;
+        public Camera mainCamera;
+        public Camera otherPortalCamera;
 
         private RenderTexture tempTexture1;
         private RenderTexture tempTexture2;
 
-        private Camera mainCamera;
-
-        private const int iterations = 2;
+        private const int iterations = 3;
 
         private void Awake()
         {
-            mainCamera = GetComponent<Camera>();
+            mainCamera = Camera.main;
+            portalCamera = GetComponent<Camera>();
 
             tempTexture1 = new RenderTexture(Screen.width, Screen.height, 24);
             tempTexture2 = new RenderTexture(Screen.width, Screen.height, 24);
@@ -37,40 +37,69 @@ namespace portalScripts
             {
                 return;
             }
-            if (portals[0].IsRendererVisible())
+            if (portals[0].IsRendererVisible(Camera.main))
             {
                 portalCamera.targetTexture = tempTexture1;
                 for (int i = iterations - 1; i >= 0; --i)
                 {
-                    RenderCamera(portals[0], portals[1], i);
+                    RenderCamera(Camera.main, portals[0], portals[1], i);
+                }
+            }
+            else
+            {
+                if (otherPortalCamera != null)
+                {
+                    if (portals[0].IsRendererVisible(otherPortalCamera))
+                    {
+                        portalCamera.targetTexture = tempTexture1;
+                        for (int i = iterations - 1; i >= 0; --i)
+                        {
+                            RenderCamera(otherPortalCamera, portals[0], portals[1], i);
+                        }
+                    }
                 }
             }
 
-            if (portals[1].IsRendererVisible())
+            if (portals[1].IsRendererVisible(Camera.main))
             {
                 portalCamera.targetTexture = tempTexture2;
                 for (int i = iterations - 1; i >= 0; --i)
                 {
-                    RenderCamera(portals[1], portals[0], i);
+                    RenderCamera(Camera.main, portals[1], portals[0], i);
+                }
+            }
+            else
+            {
+                if (otherPortalCamera != null)
+                {
+                    if (portals[1].IsRendererVisible(otherPortalCamera))
+                    {
+                        portalCamera.targetTexture = tempTexture2;
+                        for (int i = iterations - 1; i >= 0; --i)
+                        {
+                            RenderCamera(otherPortalCamera, portals[1], portals[0], i);
+                        }
+                    }
                 }
             }
         }
 
-        private void RenderCamera(NewPortal inPortal, NewPortal outPortal, int iterationID)
+        private void RenderCamera(Camera cam, NewPortal inPortal, NewPortal outPortal, int iterationID)
         {
             Transform inTransform = inPortal.transform;
             Transform outTransform = outPortal.transform;
-
-            Transform cameraTransform = portalCamera.transform;
-            cameraTransform.position = transform.position;
-            cameraTransform.rotation = transform.rotation;
+            Transform mainCameraTransform = cam.transform;
+            Transform portalCameraTransform = portalCamera.transform;
+            
+            portalCameraTransform.position = mainCameraTransform.position;
+            portalCameraTransform.rotation = mainCameraTransform.rotation;
 
             for (int i = 0; i <= iterationID; ++i)
             {
                 // Position the camera behind the other portal.
-                Vector3 relativePos = inTransform.InverseTransformPoint(cameraTransform.position);
+                Vector3 relativePos = inTransform.InverseTransformPoint(portalCameraTransform.position);
                 relativePos = Quaternion.Euler(0.0f, 180.0f, 0.0f) * relativePos;
-                cameraTransform.position = outTransform.TransformPoint(relativePos);
+                portalCameraTransform.position = outTransform.TransformPoint(relativePos);
 
                 // Position
                 // Vector3 playerPosition =
@@ -80,9 +109,9 @@ namespace portalScripts
                 
 
                 // Rotate the camera to look through the other portal.
-                Quaternion relativeRot = Quaternion.Inverse(inTransform.rotation) * cameraTransform.rotation;
+                Quaternion relativeRot = Quaternion.Inverse(inTransform.rotation) * portalCameraTransform.rotation;
                 relativeRot = Quaternion.Euler(0.0f, 180.0f, 0.0f) * relativeRot;
-                cameraTransform.rotation = outTransform.rotation * relativeRot;
+                portalCameraTransform.rotation = outTransform.rotation * relativeRot;
 
                 // Clipping
                 // portalCamera.nearClipPlane = playerPosition.magnitude;
