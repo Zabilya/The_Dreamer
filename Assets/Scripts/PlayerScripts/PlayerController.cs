@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace portalScripts
+namespace PlayerScripts
 {
     public class PlayerController : MonoBehaviour
     {
