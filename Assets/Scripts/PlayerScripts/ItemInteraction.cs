@@ -59,7 +59,7 @@ namespace PlayerScripts
             if (_isObjTaken)
             {
                 if (Physics.BoxCast(_mainCameraTransform.position, _oldScale * 0.5f,
-                    _mainCameraTransform.forward, out var hitInfo, _mainCameraTransform.rotation,
+                    _mainCameraTransform.forward, out var hitInfo, Quaternion.Euler(0.0f, 0.0f, 0.0f),
                     interactionDistance))
                 {
                     //TODO: instead of boxcast cast ray that ends with boxcast on point - box size (idk how to math it out)
